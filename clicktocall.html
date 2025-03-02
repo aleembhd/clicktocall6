@@ -355,20 +355,25 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             color: var(--primary-color);
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .popup-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 600;
             color: var(--primary-color);
+            margin-top: 10px;
             margin-bottom: 20px;
         }
 
         .popup-buttons {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 25px;
-        }
+          display: flex;
+    justify-content: space-around;
+    margin-top: 0px;
+    gap: 40px;
+}
 
         .popup-button {
             padding: 10px 20px;
@@ -667,6 +672,58 @@
         .unanswered-view .call-icon::after {
             content: 'Call Again' !important;
         }
+
+        /* Update the number-display styles to be more compact */
+        .number-display {
+            background-color: #000;
+            color: #fff;
+            padding: 4px 7px;
+            border-radius: 15px;
+            margin-bottom: 0px;
+            display: inline-flex; /* Change to inline-flex */
+            align-items: center;
+            gap: 5px;
+            font-size: 15px; /* Smaller font size */
+            font-weight: 600;
+            min-width: 140px; /* Set a minimum width */
+            max-width: fit-content; /* Allow it to fit content */
+            
+            margin-right: auto;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 2px; /* Add small margin */
+            margin-left: 7px;
+        }
+
+        .phone-number-text {
+            letter-spacing: 0.5px; /* Reduce letter spacing */
+            padding: 0 5px; /* Add small padding */
+        }
+
+        /* Update existing popup card styles */
+        .popup-card {
+            background-color: var(--secondary-color);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .popup-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -710,6 +767,10 @@
 
     <div id="callAnsweredPopup" class="popup-overlay">
         <div class="popup-card">
+            <div class="number-display">
+                <span class="status-dot"></span>
+                <span class="phone-number-text"></span>
+            </div>
             <div class="popup-title">Was The Call Answered?</div>
             <div class="popup-buttons">
                 <button class="popup-button yes-button" onclick="handleCallAnswer(true)">YES</button>
@@ -720,6 +781,7 @@
 
     <div id="callStatusPopup" class="popup-overlay">
         <div class="popup-card-2">
+        
             <div class="popup-title">Call Status</div>
             <div class="popup-buttons-2">
                 <button class="popup-button-2 interested-button" onclick="handleCallStatus('interested')">Interested</button>
@@ -849,11 +911,13 @@
                 document.getElementById('callAnsweredPopup').style.display = 'none';
                 
                 if (answered) {
-                    // If "Yes" clicked, show status options (Interested/Callback)
+                    // If "Yes" clicked, show status options
                     document.getElementById('callStatusPopup').style.display = 'flex';
+                    savePopupState(); // Save new state
                 } else {
                     // If "No" clicked, handle as not-lift
                     handleCallStatus('unanswered');
+                    sessionStorage.removeItem('activePopup'); // Clear state
                 }
             } catch (error) {
                 console.error('Error in handleCallAnswer:', error);
@@ -867,6 +931,9 @@
                 document.getElementById('callStatusPopup').style.display = 'none';
                 document.getElementById('callAnsweredPopup').style.display = 'none';
                 
+                // Clear popup state since we're done
+                sessionStorage.removeItem('activePopup');
+
                 // Format status with proper capitalization
                 let formattedStatus;
                 if (status === 'not interested') {
@@ -1071,12 +1138,16 @@
                 currentNumber = number;
                 currentSerialNumber = key;
                 
+                // Update the number display in the popup
+                document.querySelector('.phone-number-text').textContent = number;
+                
                 // Initiate call
                 window.location.href = `tel:${number}`;
                 
-                // Show popup after 10 seconds
+                // Show popup after 10 seconds and save state
                 setTimeout(() => {
                     document.getElementById('callAnsweredPopup').style.display = 'flex';
+                    savePopupState(); // Save state when showing popup
                 }, 10000);
                 
             } catch (error) {
@@ -1572,6 +1643,36 @@ JB INFRA
                 return new Date(0);
             }
         }
+
+        // Add this function to save popup state to sessionStorage
+        function savePopupState() {
+            sessionStorage.setItem('activePopup', JSON.stringify({
+                number: currentNumber,
+                serialNumber: currentSerialNumber,
+                firstPopup: document.getElementById('callAnsweredPopup').style.display === 'flex',
+                secondPopup: document.getElementById('callStatusPopup').style.display === 'flex'
+            }));
+        }
+
+        // Update the window load event handler to restore the number display
+        window.addEventListener('load', function() {
+            const savedState = JSON.parse(sessionStorage.getItem('activePopup'));
+            
+            if (savedState) {
+                currentNumber = savedState.number;
+                currentSerialNumber = savedState.serialNumber;
+                
+                // Restore the number display
+                document.querySelector('.phone-number-text').textContent = savedState.number;
+                
+                if (savedState.firstPopup) {
+                    document.getElementById('callAnsweredPopup').style.display = 'flex';
+                }
+                if (savedState.secondPopup) {
+                    document.getElementById('callStatusPopup').style.display = 'flex';
+                }
+            }
+        });
     </script>
 </body>
 </html> 
