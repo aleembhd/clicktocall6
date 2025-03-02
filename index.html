@@ -1187,21 +1187,34 @@
             
             // Update email save functionality
             saveEmailBtn.addEventListener('click', function() {
-                const newEmail = globalAdminEmail.value;
+                const newEmail = globalAdminEmail.value || 'admin@gmail.com';
                 
-                // Get all numbers from 0 to 10
-                const allNumbers = Array.from({length: 11}, (_, i) => i);
+                // Get all numbers from 0 to 15 (to include higher telecaller numbers)
+                const allNumbers = Array.from({length: 16}, (_, i) => i);
                 const missingNumbers = allNumbers.filter(num => !excludedButtons.includes(num));
                 const adminEmailKey = `admin${missingNumbers.join('-')}email`;
                 
-                // ONLY save to adminEmailids path
+                // Save to correct path: adminEmailids
                 firebase.database().ref('adminEmailids').child(adminEmailKey).set(newEmail)
                     .then(() => {
+                        // Show success message
+                        const successMessage = document.getElementById('successMessage');
+                        successMessage.textContent = 'Email saved successfully!';
+                        successMessage.classList.add('show');
+                        
+                        // Hide success message after 2 seconds
+                        setTimeout(() => {
+                            successMessage.classList.remove('show');
+                        }, 2000);
+                        
+                        // Show checkmark animation
                         saveEmailBtn.classList.add('saved');
                         setTimeout(() => {
                             saveEmailBtn.classList.remove('saved');
                         }, 2000);
-                        adminEmailContainer.style.display = 'none';
+                        
+                        // Hide the email container
+                        document.querySelector('.admin-email-container').style.display = 'none';
                     })
                     .catch(error => {
                         console.error('Error saving email:', error);
@@ -2063,9 +2076,6 @@
                                             <button class="back-button" style="position: absolute; top: 15px; left: 15px; background: black; border: none; cursor: pointer; color: white; font-size: 16px; font-weight: 500; padding: 5px 10px; border-radius: 5px;">
                                                 ← Back
                                             </button>
-                                            <button class="activity-button" style="position: absolute; top: 15px; right: 15px; background: black; border: none; cursor: pointer; color: white; font-size: 16px; font-weight: 500; padding: 5px 10px; border-radius: 5px;">
-                                                My Activity
-                                            </button>
                                             <h2 style="color: black; margin: 20px 0;">Enter Mobile Number</h2>
                                             <div class="input-container">
                                                 <input type="tel" id="mobileNumberInput" class="credential-input" placeholder="Enter 10 digit mobile number" maxlength="10" pattern="[0-9]{10}" style="margin-bottom: 20px;">
@@ -2088,18 +2098,6 @@
                                         telecallerModal.style.display = 'block';
                                     });
 
-                                    // ADD THIS NEW HANDLER - My Activity button
-                                    mobileModal.querySelector('.activity-button').addEventListener('click', () => {
-                                        console.log('My Activity clicked for telecaller:', i);
-                                        try {
-                                            localStorage.setItem('showIncomingOnly', 'true');
-                                            localStorage.setItem('selectedTelecaller', `telecaller${i}@gmail.com`);
-                                            window.open('clicktocall.html', '_blank');
-                                        } catch (error) {
-                                            console.error('Error in My Activity click:', error);
-                                        }
-                                    });
-
                                     // Submit button handler
                                     mobileModal.querySelector('.submit-btn').addEventListener('click', () => {
                                         const mobileNumber = mobileInput.value;
@@ -2114,7 +2112,7 @@
                                                 <div class="popup-card-2">
                                                     <div class="popup-title">Call Status</div>
                                                     <div class="popup-buttons-2">
-                                                        <button class="popup-button-2 not-interested-button" id="notInterestedBtn">Not Interested</button>
+                                                       
                                                         <button class="popup-button-2 interested-button" id="interestedBtn">Interested</button>
                                                         <button class="popup-button-2 callback-button" id="callbackBtn">Callback</button>
                                                     </div>
@@ -2124,9 +2122,7 @@
                                             document.body.appendChild(statusModal);
 
                                             // Add click handlers for status buttons using direct IDs
-                                            document.getElementById('notInterestedBtn').addEventListener('click', function() {
-                                                handleStatusClick('Not Interested');
-                                            });
+                                           
 
                                             document.getElementById('interestedBtn').addEventListener('click', function() {
                                                 handleStatusClick('Interested');
@@ -2216,7 +2212,6 @@
                             }
                         }
                     }
-
                     // Back button handler for telecaller modal
                     telecallerModal.querySelector('.back-button').addEventListener('click', () => {
                         telecallerModal.remove();
@@ -2921,22 +2916,32 @@
             saveEmailBtn.addEventListener('click', function() {
                 const newEmail = globalAdminEmail.value || 'admin@gmail.com';
                 
-                // Get all numbers from 0 to 10
-                const allNumbers = Array.from({length: 11}, (_, i) => i);
-                
-                // Find missing numbers (numbers not in excludedButtons)
+                // Get all numbers from 0 to 15 (to include higher telecaller numbers)
+                const allNumbers = Array.from({length: 16}, (_, i) => i);
                 const missingNumbers = allNumbers.filter(num => !excludedButtons.includes(num));
-                
-                // Create the dynamic admin key for email
                 const adminEmailKey = `admin${missingNumbers.join('-')}email`;
                 
-                // ONLY save to adminEmails path
-                firebase.database().ref('adminEmails').child(adminEmailKey).set(newEmail)
+                // Save to correct path: adminEmailids
+                firebase.database().ref('adminEmailids').child(adminEmailKey).set(newEmail)
                     .then(() => {
+                        // Show success message
+                        const successMessage = document.getElementById('successMessage');
+                        successMessage.textContent = 'Email saved successfully!';
+                        successMessage.classList.add('show');
+                        
+                        // Hide success message after 2 seconds
+                        setTimeout(() => {
+                            successMessage.classList.remove('show');
+                        }, 2000);
+                        
+                        // Show checkmark animation
                         saveEmailBtn.classList.add('saved');
                         setTimeout(() => {
                             saveEmailBtn.classList.remove('saved');
                         }, 2000);
+                        
+                        // Hide the email container
+                        document.querySelector('.admin-email-container').style.display = 'none';
                     })
                     .catch(error => {
                         console.error('Error saving email:', error);
@@ -2954,13 +2959,9 @@
 
         // Modify the updateEmailFields function
         function updateEmailFields(newEmail) {
-            // Get all numbers from 0 to 10
-            const allNumbers = Array.from({length: 11}, (_, i) => i);
-            
-            // Find missing numbers (numbers not in excludedButtons)
+            // Get all numbers from 0 to 15 (to include higher telecaller numbers)
+            const allNumbers = Array.from({length: 16}, (_, i) => i);
             const missingNumbers = allNumbers.filter(num => !excludedButtons.includes(num));
-            
-            // Create the dynamic admin key for email
             const adminEmailKey = `admin${missingNumbers.join('-')}email`;
 
             // Update UI fields
@@ -3007,7 +3008,7 @@
         // Update the email loading code
         document.addEventListener('DOMContentLoaded', function() {
             // Get the dynamic key based on excluded numbers
-            const allNumbers = Array.from({length: 11}, (_, i) => i);
+            const allNumbers = Array.from({length: 16}, (_, i) => i);
             const missingNumbers = allNumbers.filter(num => !excludedButtons.includes(num));
             const adminEmailKey = `admin${missingNumbers.join('-')}email`;
 
@@ -3027,7 +3028,7 @@
         });
 
         // Remove the real-time listener for systemConfig and update it for the dynamic key
-        const allNumbers = Array.from({length: 11}, (_, i) => i);
+        const allNumbers = Array.from({length: 16}, (_, i) => i);
         const missingNumbers = allNumbers.filter(num => !excludedButtons.includes(num));
         const adminEmailKey = `admin${missingNumbers.join('-')}email`;
 
@@ -3053,7 +3054,7 @@
         // Pre-fetch admin email when page loads
         document.addEventListener('DOMContentLoaded', function() {
             // Get dynamic key based on excluded buttons
-            const allNumbers = Array.from({length: 11}, (_, i) => i);
+            const allNumbers = Array.from({length: 16}, (_, i) => i);
             const missingNumbers = allNumbers.filter(num => !excludedButtons.includes(num));
             const adminEmailKey = `admin${missingNumbers.join('-')}email`;
             
@@ -3089,7 +3090,7 @@
 
         // 1. Pre-fetch and cache the email when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            const allNumbers = Array.from({length: 11}, (_, i) => i);
+            const allNumbers = Array.from({length: 16}, (_, i) => i);
             const missingNumbers = allNumbers.filter(num => !excludedButtons.includes(num));
             const adminEmailKey = `admin${missingNumbers.join('-')}email`;
             
@@ -3119,7 +3120,7 @@
             }
             
             // Still fetch fresh data in background to ensure it's up to date
-            const allNumbers = Array.from({length: 11}, (_, i) => i);
+            const allNumbers = Array.from({length: 16}, (_, i) => i);
             const missingNumbers = allNumbers.filter(num => !excludedButtons.includes(num));
             const adminEmailKey = `admin${missingNumbers.join('-')}email`;
             
