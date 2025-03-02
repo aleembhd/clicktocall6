@@ -443,6 +443,33 @@
             color: var(--muted-color);
             font-size: 0.9rem;
         }
+
+        /* Add these styles */
+        .number-pill {
+            background: #000;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            margin-left: 20px;
+            width: fit-content;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .number {
+            font-size: 16px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -492,6 +519,10 @@
     <!-- New popup overlay and card -->
     <div class="popup-overlay" id="popupOverlay">
         <div class="popup-card">
+            <div class="number-pill">
+                <span class="dot"></span>
+                <span class="number"></span>
+            </div>
             <div class="popup-title">Was The Call Answered?</div>
             <div class="popup-buttons">
                 <button class="popup-button yes-button" id="yesButton">YES</button>
@@ -1220,6 +1251,7 @@
             
             if (savedState && savedNumber) {
                 phoneNumber = savedNumber; // Restore the phone number
+                document.querySelector('.number').textContent = phoneNumber; // Add this line
                 updateDisplay(); // Update the display with restored number
                 
                 if (savedState.firstPopup) {
